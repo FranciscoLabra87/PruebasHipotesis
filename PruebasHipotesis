@@ -1,0 +1,33 @@
+# Función para realizar la prueba de hipótesis
+def prueba_hipotesis(df, columna, media_hipotesis, alpha, alternativa='dos_colas'):
+    # Extraer la muestra
+    muestra = df[columna].dropna().sample(n=25).values
+    n = len(muestra)
+    media_muestra = np.mean(muestra)
+    desviacion = np.std(muestra, ddof=1)
+    
+    # Calcular el estadístico t
+    t_stat = (media_muestra - media_hipotesis) / (desviacion / np.sqrt(n))
+    
+    # Grados de libertad
+    df = n - 1
+    
+    # Calcular el valor crítico y decidir sobre la hipótesis nula
+    if alternativa == 'dos_colas': #si el número cae en el intervalo
+        t_critico = stats.t.ppf(1 - alpha / 2, df)
+        if abs(t_stat) > t_critico:
+            return f"Con nivel de confianza del {100 * (1 - alpha):.1f}%, se rechaza la hipótesis nula."
+        else:
+            return f"Con nivel de confianza del {100 * (1 - alpha):.1f}%, se acepta la hipótesis nula."
+    elif alternativa == 'mayor':
+        t_critico = stats.t.ppf(1 - alpha, df)
+        if t_stat > t_critico:
+            return f"Con nivel de confianza del {100 * (1 - alpha):.1f}%, se rechaza la hipótesis nula."
+        else:
+            return f"Con nivel de confianza del {100 * (1 - alpha):.1f}%, se acepta la hipótesis nula."
+    elif alternativa == 'menor':
+        t_critico = stats.t.ppf(alpha, df)
+        if t_stat < t_critico:
+            return f"Con nivel de confianza del {100 * (1 - alpha):.1f}%, se rechaza la hipótesis nula."
+        else:
+            return f"Con nivel de confianza del {100 * (1 - alpha):.1f}%, se acepta la hipótesis nula."
